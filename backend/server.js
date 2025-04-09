@@ -30,9 +30,17 @@ app.use(limiter);
 
 // CORS configuration
 const corsOptions = {
-    origin: process.env.NODE_ENV === 'development' 
-        ? 'http://localhost:3000' 
-        : process.env.FRONTEND_URL,
+    origin: function (origin, callback) {
+        const allowedOrigins = process.env.NODE_ENV === 'development' 
+            ? ['http://localhost:3000']
+            : process.env.FRONTEND_URL.split(',').map(url => url.trim());
+        
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
