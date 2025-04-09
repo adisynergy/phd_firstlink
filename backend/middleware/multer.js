@@ -11,29 +11,35 @@ const uploadsDir = process.env.NODE_ENV === 'production'
 // Function to clean up old files
 const cleanupOldFiles = () => {
   try {
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir);
+    // Only try to create directory in development
+    if (process.env.NODE_ENV !== 'production' && !fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
     }
-    const files = fs.readdirSync(uploadsDir);
-    const now = Date.now();
     
-    files.forEach(file => {
-      const filePath = path.join(uploadsDir, file);
-      const stats = fs.statSync(filePath);
+    // Only try to read directory if it exists
+    if (fs.existsSync(uploadsDir)) {
+      const files = fs.readdirSync(uploadsDir);
+      const now = Date.now();
       
-      // Delete files older than 1 hour
-      if (now - stats.mtime.getTime() > 60 * 60 * 1000) {
-        fs.unlinkSync(filePath);
-        console.log(`Cleaned up old file: ${file}`);
-      }
-    });
+      files.forEach(file => {
+        const filePath = path.join(uploadsDir, file);
+        try {
+          const stats = fs.statSync(filePath);
+          
+          // Delete files older than 1 hour
+          if (now - stats.mtime.getTime() > 60 * 60 * 1000) {
+            fs.unlinkSync(filePath);
+            console.log(`Cleaned up old file: ${file}`);
+          }
+        } catch (error) {
+          console.warn(`Warning: Could not process file ${file}:`, error);
+        }
+      });
+    }
   } catch (error) {
-    console.error('Error cleaning up uploads directory:', error);
+    console.warn('Warning: Could not clean up uploads directory:', error);
   }
 };
-
-// Clean up old files when the server starts
-cleanupOldFiles();
 
 // Configure multer for file upload
 const storage = multer.diskStorage({

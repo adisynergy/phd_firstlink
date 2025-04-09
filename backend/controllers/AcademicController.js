@@ -12,7 +12,9 @@ cloudinary.config({
 
 // Create uploads directory if it doesn't exist
 const uploadsDir = process.env.NODE_ENV === 'production' ? '/tmp' : path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadsDir)) {
+
+// Only try to create directory in development
+if (process.env.NODE_ENV !== 'production' && !fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir);
 }
 
