@@ -10,13 +10,20 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// Create uploads directory if it doesn't exist
+// Use /tmp directory for production and local directory for development
 const uploadsDir = process.env.NODE_ENV === 'production' ? '/tmp' : path.join(__dirname, '../uploads');
 
-// Only try to create directory in development
-if (process.env.NODE_ENV !== 'production' && !fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir);
-}
+// Function to ensure uploads directory exists
+const ensureUploadsDir = () => {
+  try {
+    // Only try to create directory in development
+    if (process.env.NODE_ENV !== 'production' && !fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+  } catch (error) {
+    console.warn('Warning: Could not create uploads directory:', error);
+  }
+};
 
 // Function to clean up temporary files
 const cleanupTempFile = (filePath) => {
@@ -247,6 +254,9 @@ const uploadAcademicDocument = async (req, res) => {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
+    // Ensure uploads directory exists
+    ensureUploadsDir();
+
     // Validate file type
     if (req.file.mimetype !== 'application/pdf') {
       cleanupTempFile(req.file.path);
@@ -353,6 +363,9 @@ const uploadFile = async (req, res) => {
         message: 'No file uploaded'
       });
     }
+
+    // Ensure uploads directory exists
+    ensureUploadsDir();
 
     // Upload to Cloudinary
     const result = await cloudinary.uploader.upload(req.file.path, {
