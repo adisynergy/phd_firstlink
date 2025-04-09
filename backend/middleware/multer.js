@@ -3,15 +3,17 @@ const path = require("path");
 const fs = require("fs");
 const os = require("os");
 
-// Use /tmp directory for Vercel compatibility
-const uploadsDir = path.join(os.tmpdir(), 'phd-admission-uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
+// Use /tmp directory for production and local directory for development
+const uploadsDir = process.env.NODE_ENV === 'production' 
+  ? '/tmp' 
+  : path.join(__dirname, '../uploads');
 
 // Function to clean up old files
 const cleanupOldFiles = () => {
   try {
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir);
+    }
     const files = fs.readdirSync(uploadsDir);
     const now = Date.now();
     

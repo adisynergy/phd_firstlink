@@ -16,6 +16,9 @@ cloudinary.config({
 // Function to clean up old temporary files
 const cleanupTempFiles = (directory) => {
   try {
+    if (!fs.existsSync(directory)) {
+      return;
+    }
     const files = fs.readdirSync(directory);
     const now = Date.now();
     
@@ -40,7 +43,7 @@ const uploadOnCloudinary = async (filePath, options = {}) => {
     cleanupTempFiles(path.dirname(filePath));
 
     // Ensure we're using a temporary file path
-    const tempDir = os.tmpdir();
+    const tempDir = process.env.NODE_ENV === 'production' ? '/tmp' : os.tmpdir();
     const fileName = path.basename(filePath);
     const tempFilePath = path.join(tempDir, fileName);
 
@@ -59,7 +62,9 @@ const uploadOnCloudinary = async (filePath, options = {}) => {
     // Clean up the temporary file
     try {
       fs.unlinkSync(tempFilePath);
-      fs.unlinkSync(filePath); // Also clean up the original file
+      if (filePath !== tempFilePath) {
+        fs.unlinkSync(filePath);
+      }
     } catch (error) {
       console.warn('Warning: Could not delete temporary file:', error);
     }

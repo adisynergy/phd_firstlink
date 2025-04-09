@@ -11,10 +11,21 @@ cloudinary.config({
 });
 
 // Create uploads directory if it doesn't exist
-const uploadsDir = path.join(process.env.NODE_ENV === 'production' ? '/tmp' : __dirname, '../uploads');
+const uploadsDir = process.env.NODE_ENV === 'production' ? '/tmp' : path.join(__dirname, '../uploads');
 if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+  fs.mkdirSync(uploadsDir);
 }
+
+// Function to clean up temporary files
+const cleanupTempFile = (filePath) => {
+  try {
+    if (filePath && fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  } catch (error) {
+    console.warn('Warning: Could not delete temporary file:', error);
+  }
+};
 
 // 🔹 Add/Update Academic Details
 const createAcademic = async (req, res) => {
@@ -236,20 +247,23 @@ const uploadAcademicDocument = async (req, res) => {
 
     // Validate file type
     if (req.file.mimetype !== 'application/pdf') {
+      cleanupTempFile(req.file.path);
       return res.status(400).json({ message: "Only PDF files are allowed" });
     }
 
     // Validate file size (5MB)
     if (req.file.size > 5 * 1024 * 1024) {
+      cleanupTempFile(req.file.path);
       return res.status(400).json({ message: "File size should be less than 5MB" });
     }
 
     const uploadResult = await cloudinary.uploader.upload(req.file.path, {
       folder: 'academic_documents',
-      resource_type: 'raw' // Changed from 'auto' to 'raw' for PDFs
+      resource_type: 'raw'
     });
     
     if (!uploadResult) {
+      cleanupTempFile(req.file.path);
       return res.status(500).json({ message: "Failed to upload file" });
     }
 
@@ -271,6 +285,7 @@ const uploadAcademicDocument = async (req, res) => {
         $set: { [`publications.${index}.document_url`]: uploadResult.secure_url }
       };
     } else {
+      cleanupTempFile(req.file.path);
       return res.status(400).json({ message: "Invalid document type" });
     }
 
@@ -281,7 +296,7 @@ const uploadAcademicDocument = async (req, res) => {
     );
 
     // Clean up the temporary file
-    fs.unlinkSync(req.file.path);
+    cleanupTempFile(req.file.path);
 
     return res.status(200).json({
       message: "Document uploaded successfully",
@@ -290,12 +305,7 @@ const uploadAcademicDocument = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in uploadAcademicDocument:", error);
-    
-    // Clean up temporary file if it exists
-    if (req.file && req.file.path && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
-    }
-
+    cleanupTempFile(req.file?.path);
     return res.status(500).json({ 
       message: "Error uploading document",
       error: error.message 
@@ -345,11 +355,11 @@ const uploadFile = async (req, res) => {
     // Upload to Cloudinary
     const result = await cloudinary.uploader.upload(req.file.path, {
       folder: 'academic_documents',
-      resource_type: 'raw' // Changed from 'auto' to 'raw' for PDFs
+      resource_type: 'raw'
     });
 
-    // Delete the temporary file
-    fs.unlinkSync(req.file.path);
+    // Clean up the temporary file
+    cleanupTempFile(req.file.path);
 
     res.status(200).json({
       success: true,
@@ -358,12 +368,7 @@ const uploadFile = async (req, res) => {
     });
   } catch (error) {
     console.error('Error uploading file:', error);
-    
-    // Clean up temporary file if it exists
-    if (req.file && req.file.path && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
-    }
-
+    cleanupTempFile(req.file?.path);
     res.status(500).json({
       success: false,
       message: 'Error uploading file',
