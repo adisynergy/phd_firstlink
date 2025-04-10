@@ -1,0 +1,45 @@
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# Environment Variables & Configs
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+.env.*.local
+
+# Cloudinary & Other API Keys (if stored locally)
+cloudinary-config.js
+config.js
+
+# Multer Uploads (Stored Locally)
+uploads/
+public/uploads/
+
+# Compiled Output
+dist/
+build/
+.cache/
+
+# Editor & System Files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-workspace
+
+# Debugging
+*.bak
+*.orig
