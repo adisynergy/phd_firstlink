@@ -19,7 +19,7 @@ export default function NavigationBar() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <h1 className="text-gray-800 text-center text-lg md:text-xl lg:text-2xl font-bold mt-2">
-              APPLICATION FORM FOR ADMISSION TO Ph.D. PROGRAMME (Visvesvaraya Ph.D. Scheme for Electronics and IT: Phase-II)(Jul -Dec 2025)
+              APPLICATION FORM FOR ADMISSION TO Ph.D. PROGRAMME (Jul -Dec 2025)
             </h1>
           </div>
           <div className="flex items-center">
