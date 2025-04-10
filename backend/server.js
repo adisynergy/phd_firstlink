@@ -17,36 +17,15 @@ dotenv.config();
 // Create Express app
 const app = express();
 
-// Security middleware
-app.use(helmet());
-
-// Rate limiting
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
-    message: 'Too many requests from this IP, please try again later'
-});
-app.use(limiter);
-
 // CORS configuration
-const corsOptions = {
-    origin: function (origin, callback) {
-        const allowedOrigins = process.env.NODE_ENV === 'development' 
-            ? ['http://localhost:3000']
-            : process.env.FRONTEND_URL.split(',').map(url => url.trim());
-        
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    maxAge: 86400 // 24 hours
-};
-app.use(cors(corsOptions));
+app.use(cors({
+  origin: process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:3000' 
+    : process.env.FRONTEND_URL,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Add security headers
 app.use((req, res, next) => {
