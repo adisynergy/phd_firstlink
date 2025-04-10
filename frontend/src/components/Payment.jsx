@@ -134,7 +134,7 @@ export default function Payment() {
         transaction_id: formData.transaction_id,
         transaction_date: formData.transaction_date,
         issued_bank: formData.issued_bank,
-        amount: 1000,
+        amount: 500,
         screenshot: {
           url: paymentDetails.screenshot_url
         },
@@ -218,7 +218,7 @@ export default function Payment() {
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <h3 className="text-lg font-medium text-yellow-800 mb-2">Important Payment Information</h3>
             <ul className="list-disc list-inside space-y-2 text-yellow-700">
-              <li>Application fee: Rs. 1000/- (non-refundable)</li>
+              <li>Application fee: Rs. 500/- (non-refundable)</li>
               <li>SC/ST/PH candidates are exempted from application fee</li>
               <li>Payment should be made through online transaction</li>
             </ul>
