@@ -333,48 +333,6 @@ const ApplicationPDF = ({ personalDetails, academicDetails, applicationNumber, e
         ))}
       </View>
 
-      {/* Experience Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Professional Experience</Text>
-        {(academicDetails?.experience || []).map((exp, index) => (
-          <View key={index} style={styles.row}>
-            <Text style={styles.label}>{exp.type}</Text>
-            <View style={styles.value}>
-              <Text>Organization: {exp.organisation}</Text>
-              <Text>Place: {exp.place}</Text>
-              <Text>Period: {new Date(exp.period_from).toLocaleDateString()} - {exp.period_to ? new Date(exp.period_to).toLocaleDateString() : 'Present'}</Text>
-              <Text>Designation: {exp.designation}</Text>
-              <Text>Monthly Compensation: {exp.monthly_compensation}</Text>
-              <Text>Nature of Work: {exp.nature_of_work}</Text>
-            </View>
-          </View>
-        ))}
-      </View>
-
-      {/* Publications Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Publications</Text>
-        {(academicDetails?.publications || []).map((pub, index) => (
-          <View key={index} style={styles.row}>
-            <Text style={styles.label}>{pub.type}</Text>
-            <View style={styles.value}>
-              <Text>Title: {pub.paper_title}</Text>
-              <Text>Affiliation: {pub.affiliation}</Text>
-              <Text>Year: {pub.acceptance_year}</Text>
-            </View>
-            </View>
-        ))}
-      </View>
-
-      {/* Mode of PhD Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Mode of PhD</Text>
-        <View style={styles.row}>
-          <Text style={styles.label}>Mode</Text>
-          <Text style={styles.value}>{personalDetails?.mode_of_phd || 'Not specified'}</Text>
-        </View>
-      </View>
-
       {/* Examination Results Section */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Examination Results</Text>
@@ -450,6 +408,65 @@ const ApplicationPDF = ({ personalDetails, academicDetails, applicationNumber, e
         </View>
       </View>
 
+      {/* Project Titles Section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Project Titles</Text>
+        <View style={styles.row}>
+          <Text style={styles.label}>UG Project Title</Text>
+          <View style={styles.value}>
+            <Text>{academicDetails?.qualifications?.[0]?.examination_results?.ug?.project_title || 'Not specified'}</Text>
+          </View>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>PG Project Title</Text>
+          <View style={styles.value}>
+            <Text>{academicDetails?.qualifications?.[0]?.examination_results?.pg?.project_title || 'Not specified'}</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Experience Section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Professional Experience</Text>
+        {(academicDetails?.experience || []).map((exp, index) => (
+          <View key={index} style={styles.row}>
+            <Text style={styles.label}>{exp.type}</Text>
+            <View style={styles.value}>
+              <Text>Organization: {exp.organisation}</Text>
+              <Text>Place: {exp.place}</Text>
+              <Text>Period: {new Date(exp.period_from).toLocaleDateString()} - {exp.period_to ? new Date(exp.period_to).toLocaleDateString() : 'Present'}</Text>
+              <Text>Designation: {exp.designation}</Text>
+              <Text>Monthly Compensation: {exp.monthly_compensation}</Text>
+              <Text>Nature of Work: {exp.nature_of_work}</Text>
+            </View>
+          </View>
+        ))}
+      </View>
+
+      {/* Publications Section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Publications</Text>
+        {(academicDetails?.publications || []).map((pub, index) => (
+          <View key={index} style={styles.row}>
+            <Text style={styles.label}>{pub.type}</Text>
+            <View style={styles.value}>
+              <Text>Title: {pub.paper_title}</Text>
+              <Text>Affiliation: {pub.affiliation}</Text>
+              <Text>Year: {pub.acceptance_year}</Text>
+            </View>
+            </View>
+        ))}
+      </View>
+
+      {/* Mode of PhD Section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Mode of PhD</Text>
+        <View style={styles.row}>
+          <Text style={styles.label}>Mode</Text>
+          <Text style={styles.value}>{personalDetails?.mode_of_phd || 'Not specified'}</Text>
+        </View>
+      </View>
+
       {/* Additional Qualifications Section */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Additional Qualifications</Text>
@@ -466,23 +483,6 @@ const ApplicationPDF = ({ personalDetails, academicDetails, applicationNumber, e
             <Text>Examination: {academicDetails?.additional_qualifications?.find(q => q.exam_type === 'NET/CSIR/UGC/JRF/Lectureship/NBHM/Other')?.exam_name || 'Not specified'}</Text>
             <Text>Date of Exam: {academicDetails?.additional_qualifications?.find(q => q.exam_type === 'NET/CSIR/UGC/JRF/Lectureship/NBHM/Other')?.date_of_exam || 'Not specified'}</Text>
             <Text>Qualifying Year: {academicDetails?.additional_qualifications?.find(q => q.exam_type === 'NET/CSIR/UGC/JRF/Lectureship/NBHM/Other')?.qualifying_year || 'Not specified'}</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Project Titles Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Project Titles</Text>
-        <View style={styles.row}>
-          <Text style={styles.label}>UG Project Title</Text>
-          <View style={styles.value}>
-            <Text>{academicDetails?.qualifications?.[0]?.examination_results?.ug?.project_title || 'Not specified'}</Text>
-          </View>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>PG Project Title</Text>
-          <View style={styles.value}>
-            <Text>{academicDetails?.qualifications?.[0]?.examination_results?.pg?.project_title || 'Not specified'}</Text>
           </View>
         </View>
       </View>
@@ -1158,45 +1158,6 @@ export default function PrintApplication() {
                   <p className="text-gray-600">Program Duration: {qual.program_duration_months} months</p>
                 </div>
               ))}
-            </div>
-
-            {/* Experience */}
-            <div className="mb-6">
-              <h3 className="text-lg font-medium mb-2">Experience</h3>
-              {(academicDetails?.experience || []).map((exp, index) => (
-                <div key={index} className="mb-4 p-3 bg-gray-50 rounded">
-                  <p className="font-medium">{exp.type}</p>
-                  <p className="text-gray-600">Organization: {exp.organisation}</p>
-                  <p className="text-gray-600">Place: {exp.place}</p>
-                  <p className="text-gray-600">Period: {new Date(exp.period_from).toLocaleDateString()} - {exp.period_to ? new Date(exp.period_to).toLocaleDateString() : 'Present'}</p>
-                  <p className="text-gray-600">Designation: {exp.designation}</p>
-                  <p className="text-gray-600">Monthly Compensation: {exp.monthly_compensation}</p>
-                  <p className="text-gray-600">Nature of Work: {exp.nature_of_work}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Publications */}
-            <div className="mb-6">
-              <h3 className="text-lg font-medium mb-2">Publications</h3>
-              {(academicDetails?.publications || []).map((pub, index) => (
-                <div key={index} className="mb-4 p-3 bg-gray-50 rounded">
-                  <p className="font-medium">{pub.type}</p>
-                  <p className="text-gray-600">Title: {pub.paper_title}</p>
-                  <p className="text-gray-600">Affiliation: {pub.affiliation}</p>
-                  <p className="text-gray-600">Year: {pub.acceptance_year}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Mode of PhD Section */}
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-2">Mode of PhD</h3>
-              <div className="border border-gray-200 rounded p-4">
-                <p className="text-gray-700">
-                  {personalDetails?.mode_of_phd || 'Not specified'}
-                </p>
-              </div>
             </div>
 
             {/* Examination Results Section */}
