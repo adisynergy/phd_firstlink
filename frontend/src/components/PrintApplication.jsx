@@ -13,66 +13,79 @@ import { Label } from './ui/label';
 // PDF Styles
 const styles = StyleSheet.create({
   page: {
-    padding: 40,
+    padding: 30, // Reduced padding to maximize space
     backgroundColor: '#ffffff',
+    fontFamily: 'Times-Roman',
   },
   header: {
-    marginBottom: 20,
+    marginBottom: 15, // Reduced margin
     borderBottomWidth: 2,
     borderBottomColor: '#000',
     borderBottomStyle: 'solid',
-    paddingBottom: 10,
+    paddingBottom: 8, // Reduced padding
   },
   title: {
-    fontSize: 20,
-    marginBottom: 5,
+    fontSize: 16, // Reduced font size
+    marginBottom: 3,
     textAlign: 'center',
     fontWeight: 'bold',
+    fontFamily: 'Times-Bold',
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 12, // Reduced font size
     textAlign: 'center',
-    color: '#666',
+    color: '#222',
+    fontFamily: 'Times-Roman',
   },
   section: {
-    marginBottom: 15,
+    marginBottom: 10, // Reduced spacing between sections
+    breakInside: 'avoid', // Try to avoid breaking inside a section
   },
   sectionTitle: {
-    fontSize: 16,
-    marginBottom: 8,
+    fontSize: 13, // Reduced font size
+    marginBottom: 6, // Reduced margin
     fontWeight: 'bold',
     backgroundColor: '#f0f0f0',
-    padding: 5,
+    padding: 4, // Reduced padding
+    fontFamily: 'Times-Bold',
+    textTransform: 'uppercase',
   },
   subsectionTitle: {
-    fontSize: 14,
-    marginBottom: 5,
+    fontSize: 12,
+    marginBottom: 4, // Reduced margin
     fontWeight: 'bold',
     color: '#333',
+    fontFamily: 'Times-Bold',
   },
   row: {
     flexDirection: 'row',
-    marginBottom: 5,
+    marginBottom: 3, // Reduced spacing between rows
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
     borderBottomStyle: 'solid',
-    paddingBottom: 5,
+    paddingBottom: 3, // Reduced padding
+    alignItems: 'flex-start',
   },
   label: {
     width: '30%',
-    fontSize: 12,
+    fontSize: 10, // Reduced font size
     fontWeight: 'bold',
     color: '#333',
+    fontFamily: 'Times-Bold',
+    paddingRight: 5,
   },
   value: {
     width: '70%',
-    fontSize: 12,
+    fontSize: 10, // Reduced font size
     color: '#000',
+    fontFamily: 'Times-Roman',
   },
   fullWidth: {
     width: '100%',
-    fontSize: 12,
-    marginBottom: 5,
+    fontSize: 10, // Reduced font size
+    marginBottom: 4,
+    fontFamily: 'Times-Roman',
+    lineHeight: 1.4, // Reduced line height
   },
   imageContainer: {
     marginVertical: 10,
@@ -96,6 +109,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
     marginBottom: 5,
+    fontFamily: 'Times-Bold',
   },
   documentImage: {
     width: 300,
@@ -116,6 +130,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 20,
+    alignItems: 'flex-start',
   },
   personalDetails: {
     flex: 1,
@@ -146,13 +161,15 @@ const styles = StyleSheet.create({
     fontSize: 10,
     textAlign: 'center',
     marginBottom: 2,
-    color: '#666',
+    color: '#333',
+    fontFamily: 'Times-Italic',
   },
   signatureLabel: {
     fontSize: 10,
     textAlign: 'center',
     marginBottom: 2,
-    color: '#666',
+    color: '#333',
+    fontFamily: 'Times-Italic',
   },
   table: {
     width: '100%',
@@ -172,6 +189,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     borderRightWidth: 1,
     borderRightColor: '#000',
+    fontSize: 11,
+    fontFamily: 'Times-Bold',
+    backgroundColor: '#f5f5f5',
   },
   tableCell: {
     flex: 1,
@@ -179,432 +199,492 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     borderRightWidth: 1,
     borderRightColor: '#000',
+    fontSize: 11,
+    fontFamily: 'Times-Roman',
+  },
+  pageNumber: {
+    position: 'absolute',
+    fontSize: 10,
+    bottom: 20,
+    left: 0,
+    right: 0,
+    textAlign: 'center',
+    color: '#666',
+    fontFamily: 'Times-Roman',
   },
 });
 
-// PDF Document Component
-const ApplicationPDF = ({ personalDetails, academicDetails, applicationNumber, enclosures, payment, declaration }) => (
-  <>
-    <Page size="A4" style={styles.page}>
-      <View style={styles.header}>
-        <Text style={styles.title}>PhD Admission Application</Text>
-        <Text style={styles.subtitle}>Application Number: {applicationNumber}</Text>
-      </View>
+// PDF Document Component with page breaks optimized for section containment
+const ApplicationPDF = ({ personalDetails, academicDetails, applicationNumber, enclosures, payment, declaration }) => {
+  // Helper function to determine if a section is large and should be on its own page
+  const isLargeSection = (section) => {
+    return ["Academic Qualifications", "Examination Results", "Professional Experience"].includes(section);
+  };
+  
+  return (
+    <Document>
+      {/* Page 1: Personal Details and Address */}
+      <Page size="A4" style={styles.page}>
+        <View style={styles.header} fixed>
+          <Text style={styles.title}>PhD ADMISSION APPLICATION</Text>
+          <Text style={styles.subtitle}>Application Number: {applicationNumber}</Text>
+        </View>
 
-      {/* Personal Details Section with Photo and Signature */}
-      <View style={styles.section}>
-        <View style={styles.headerRow}>
-          <View style={styles.personalDetails}>
-            <Text style={styles.sectionTitle}>Personal Details</Text>
-            <View style={styles.row}>
-              <Text style={styles.label}>Name</Text>
-              <Text style={styles.value}>{personalDetails?.first_name} {personalDetails?.last_name}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Date of Birth</Text>
-              <Text style={styles.value}>{personalDetails?.date_of_birth ? new Date(personalDetails.date_of_birth).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Not specified'}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Gender</Text>
-              <Text style={styles.value}>{personalDetails?.gender}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Nationality</Text>
-              <Text style={styles.value}>{personalDetails?.nationality}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Category</Text>
-              <Text style={styles.value}>{personalDetails?.category}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Religion</Text>
-              <Text style={styles.value}>{personalDetails?.religion}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Father's Name</Text>
-              <Text style={styles.value}>{personalDetails?.father_name}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Mother's Name</Text>
-              <Text style={styles.value}>{personalDetails?.mother_name}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Marital Status</Text>
-              <Text style={styles.value}>{personalDetails?.marital_status}</Text>
-            </View>
-            {personalDetails?.marital_status !== 'Single' && (
+        {/* Personal Details Section with Photo and Signature */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Personal Details</Text>
+          <View style={styles.headerRow}>
+            <View style={styles.personalDetails}>
               <View style={styles.row}>
-                <Text style={styles.label}>Spouse Name</Text>
-                <Text style={styles.value}>{personalDetails?.spouse_name}</Text>
+                <Text style={styles.label}>Name</Text>
+                <Text style={styles.value}>{personalDetails?.first_name} {personalDetails?.last_name}</Text>
               </View>
-            )}
-            <View style={styles.row}>
-              <Text style={styles.label}>Email</Text>
-              <Text style={styles.value}>{personalDetails?.email}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Phone</Text>
-              <Text style={styles.value}>{personalDetails?.phone}</Text>
-            </View>
-            {personalDetails?.alternate_phone && (
               <View style={styles.row}>
-                <Text style={styles.label}>Alternate Phone</Text>
-                <Text style={styles.value}>{personalDetails.alternate_phone}</Text>
+                <Text style={styles.label}>Date of Birth</Text>
+                <Text style={styles.value}>{personalDetails?.date_of_birth ? new Date(personalDetails.date_of_birth).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Not specified'}</Text>
               </View>
-            )}
+              <View style={styles.row}>
+                <Text style={styles.label}>Gender</Text>
+                <Text style={styles.value}>{personalDetails?.gender}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Nationality</Text>
+                <Text style={styles.value}>{personalDetails?.nationality}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Category</Text>
+                <Text style={styles.value}>{personalDetails?.category}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Religion</Text>
+                <Text style={styles.value}>{personalDetails?.religion}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Father's Name</Text>
+                <Text style={styles.value}>{personalDetails?.father_name}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Mother's Name</Text>
+                <Text style={styles.value}>{personalDetails?.mother_name}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Marital Status</Text>
+                <Text style={styles.value}>{personalDetails?.marital_status}</Text>
+              </View>
+              {personalDetails?.marital_status !== 'Single' && (
+                <View style={styles.row}>
+                  <Text style={styles.label}>Spouse Name</Text>
+                  <Text style={styles.value}>{personalDetails?.spouse_name}</Text>
+                </View>
+              )}
+              <View style={styles.row}>
+                <Text style={styles.label}>Email</Text>
+                <Text style={styles.value}>{personalDetails?.email}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Phone</Text>
+                <Text style={styles.value}>{personalDetails?.phone}</Text>
+              </View>
+              {personalDetails?.alternate_phone && (
+                <View style={styles.row}>
+                  <Text style={styles.label}>Alternate Phone</Text>
+                  <Text style={styles.value}>{personalDetails.alternate_phone}</Text>
+                </View>
+              )}
+            </View>
+            
+            {/* Photo and Signature - Moved to top right */}
+            <View style={styles.photoSignatureContainer}>
+              {personalDetails?.photo?.url && (
+                <View style={styles.photoContainer}>
+                  <Text style={styles.photoLabel}>Recent Photograph</Text>
+                  <Image
+                    src={personalDetails.photo.url}
+                    style={styles.photo}
+                    cache={false}
+                  />
+                </View>
+              )}
+              {personalDetails?.signature?.url && (
+                <View style={styles.signatureContainer}>
+                  <Text style={styles.signatureLabel}>Signature</Text>
+                  <Image
+                    src={personalDetails.signature.url}
+                    style={styles.signature}
+                    cache={false}
+                  />
+                </View>
+              )}
+            </View>
           </View>
-          
-          {/* Photo and Signature - Moved to top right */}
-          <View style={styles.photoSignatureContainer}>
-            {personalDetails?.photo?.url && (
-              <View style={styles.photoContainer}>
-                <Text style={styles.photoLabel}>Recent Photograph</Text>
-                <Image
-                  src={personalDetails.photo.url}
-                  style={styles.photo}
-                  cache={false}
-                />
+        </View>
+
+        {/* Address Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Communication Address</Text>
+          <View style={styles.row}>
+            <Text style={styles.label}>Current Address</Text>
+            <View style={styles.value}>
+              <Text>{personalDetails?.current_address?.street || 'Not specified'}</Text>
+              {personalDetails?.current_address?.line2 && (
+                <Text>{personalDetails.current_address.line2}</Text>
+              )}
+              {personalDetails?.current_address?.line3 && (
+                <Text>{personalDetails.current_address.line3}</Text>
+              )}
+              <Text>
+                {personalDetails?.current_address?.city || 'Not specified'}, {personalDetails?.current_address?.state || 'Not specified'} - {personalDetails?.current_address?.pincode || 'Not specified'}
+              </Text>
+            </View>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Permanent Address</Text>
+            <View style={styles.value}>
+              <Text>{personalDetails?.permanent_address?.street || 'Not specified'}</Text>
+              {personalDetails?.permanent_address?.line2 && (
+                <Text>{personalDetails.permanent_address.line2}</Text>
+              )}
+              {personalDetails?.permanent_address?.line3 && (
+                <Text>{personalDetails.permanent_address.line3}</Text>
+              )}
+              <Text>
+                {personalDetails?.permanent_address?.city || 'Not specified'}, {personalDetails?.permanent_address?.state || 'Not specified'} - {personalDetails?.permanent_address?.pincode || 'Not specified'}
+              </Text>
+            </View>
+          </View>
+        </View>
+        
+        {/* Mode of PhD Section - Small section added to first page */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Mode of PhD</Text>
+          <View style={styles.row}>
+            <Text style={styles.label}>Mode</Text>
+            <Text style={styles.value}>{personalDetails?.mode_of_phd || 'Not specified'}</Text>
+          </View>
+        </View>
+        
+        <Text style={styles.pageNumber} render={({ pageNumber, totalPages }) => (
+          `Page ${pageNumber} of ${totalPages}`
+        )} fixed />
+      </Page>
+      
+      {/* Page 2: Academic Qualifications and Examination Results */}
+      <Page size="A4" style={styles.page}>
+        <View style={styles.header} fixed>
+          <Text style={styles.title}>PhD ADMISSION APPLICATION</Text>
+          <Text style={styles.subtitle}>Application Number: {applicationNumber}</Text>
+        </View>
+        
+        {/* Academic Qualifications Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Academic Qualifications</Text>
+          {(academicDetails?.qualifications || []).map((qual, index) => (
+            <View key={index} style={styles.row}>
+              <Text style={styles.label}>{qual.standard}</Text>
+              <View style={styles.value}>
+                <Text>{qual.degree_name}</Text>
+                <Text>{qual.university}</Text>
+                <Text>Year: {qual.year_of_completion}</Text>
+                <Text>Marks: {qual.marks_obtained} {qual.marks_type}</Text>
+                {qual.branch && <Text>Branch: {qual.branch}</Text>}
+                <Text>Duration: {qual.program_duration_months} months</Text>
               </View>
-            )}
-            {personalDetails?.signature?.url && (
-              <View style={styles.signatureContainer}>
-                <Text style={styles.signatureLabel}>Signature</Text>
+            </View>
+          ))}
+        </View>
+
+        {/* Examination Results Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Examination Results</Text>
+          <View style={styles.row}>
+            <Text style={styles.label}>Bachelor's Degree</Text>
+            <View style={styles.value}>
+              <Text>Branch: {academicDetails?.qualifications?.find(q => q.standard === 'UG')?.examination_results?.ug?.branch || 'Not specified'}</Text>
+              <Text>Aggregate/CGPA: {academicDetails?.qualifications?.find(q => q.standard === 'UG')?.examination_results?.ug?.aggregate?.cgpa || 'Not specified'}</Text>
+              <Text>Class: {academicDetails?.qualifications?.find(q => q.standard === 'UG')?.examination_results?.ug?.aggregate?.class || 'Not specified'}</Text>
+              <Text>% of Marks/GPA: {academicDetails?.qualifications?.find(q => q.standard === 'UG')?.examination_results?.ug?.aggregate?.percentage || 'Not specified'}</Text>
+            </View>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Semester-wise Marks</Text>
+            <View style={styles.value}>
+              <View style={styles.table}>
+                <View style={styles.tableRow}>
+                  <Text style={styles.tableHeader}>Semester I</Text>
+                  <Text style={styles.tableHeader}>Semester II</Text>
+                  <Text style={styles.tableHeader}>Semester III</Text>
+                  <Text style={styles.tableHeader}>Semester IV</Text>
+                  <Text style={styles.tableHeader}>Semester V</Text>
+                  <Text style={styles.tableHeader}>Semester VI</Text>
+                  <Text style={styles.tableHeader}>Semester VII</Text>
+                  <Text style={styles.tableHeader}>Semester VIII</Text>
+                </View>
+                <View style={styles.tableRow}>
+                  <Text style={styles.tableCell}>{academicDetails?.qualifications?.find(q => q.standard === 'UG')?.examination_results?.ug?.semesters?.I?.marks || '-'}</Text>
+                  <Text style={styles.tableCell}>{academicDetails?.qualifications?.find(q => q.standard === 'UG')?.examination_results?.ug?.semesters?.II?.marks || '-'}</Text>
+                  <Text style={styles.tableCell}>{academicDetails?.qualifications?.find(q => q.standard === 'UG')?.examination_results?.ug?.semesters?.III?.marks || '-'}</Text>
+                  <Text style={styles.tableCell}>{academicDetails?.qualifications?.find(q => q.standard === 'UG')?.examination_results?.ug?.semesters?.IV?.marks || '-'}</Text>
+                  <Text style={styles.tableCell}>{academicDetails?.qualifications?.find(q => q.standard === 'UG')?.examination_results?.ug?.semesters?.V?.marks || '-'}</Text>
+                  <Text style={styles.tableCell}>{academicDetails?.qualifications?.find(q => q.standard === 'UG')?.examination_results?.ug?.semesters?.VI?.marks || '-'}</Text>
+                  <Text style={styles.tableCell}>{academicDetails?.qualifications?.find(q => q.standard === 'UG')?.examination_results?.ug?.semesters?.VII?.marks || '-'}</Text>
+                  <Text style={styles.tableCell}>{academicDetails?.qualifications?.find(q => q.standard === 'UG')?.examination_results?.ug?.semesters?.VIII?.marks || '-'}</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Master's Degree</Text>
+            <View style={styles.value}>
+              <Text>Branch: {academicDetails?.qualifications?.find(q => q.standard === 'PG')?.examination_results?.pg?.branch || 'Not specified'}</Text>
+              <Text>Aggregate/CGPA: {academicDetails?.qualifications?.find(q => q.standard === 'PG')?.examination_results?.pg?.aggregate?.cgpa || 'Not specified'}</Text>
+              <Text>Class: {academicDetails?.qualifications?.find(q => q.standard === 'PG')?.examination_results?.pg?.aggregate?.class || 'Not specified'}</Text>
+              <Text>% of Marks/GPA: {academicDetails?.qualifications?.find(q => q.standard === 'PG')?.examination_results?.pg?.aggregate?.percentage || 'Not specified'}</Text>
+            </View>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Semester-wise Marks</Text>
+            <View style={styles.value}>
+              <View style={styles.table}>
+                <View style={styles.tableRow}>
+                  <Text style={styles.tableHeader}>Semester I</Text>
+                  <Text style={styles.tableHeader}>Semester II</Text>
+                  <Text style={styles.tableHeader}>Semester III</Text>
+                  <Text style={styles.tableHeader}>Semester IV</Text>
+                </View>
+                <View style={styles.tableRow}>
+                  <Text style={styles.tableCell}>{academicDetails?.qualifications?.find(q => q.standard === 'PG')?.examination_results?.pg?.semesters?.I?.marks || '-'}</Text>
+                  <Text style={styles.tableCell}>{academicDetails?.qualifications?.find(q => q.standard === 'PG')?.examination_results?.pg?.semesters?.II?.marks || '-'}</Text>
+                  <Text style={styles.tableCell}>{academicDetails?.qualifications?.find(q => q.standard === 'PG')?.examination_results?.pg?.semesters?.III?.marks || '-'}</Text>
+                  <Text style={styles.tableCell}>{academicDetails?.qualifications?.find(q => q.standard === 'PG')?.examination_results?.pg?.semesters?.IV?.marks || '-'}</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Other Degree/Diploma</Text>
+            <View style={styles.value}>
+              <Text>{academicDetails?.qualifications?.find(q => q.standard === 'Other')?.examination_results?.other?.degree_name || 'Not specified'}</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Project Titles Section - Added to page 2 since it's related to academics */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Project Titles</Text>
+          <View style={styles.row}>
+            <Text style={styles.label}>UG Project Title</Text>
+            <View style={styles.value}>
+              <Text>{academicDetails?.qualifications?.[0]?.examination_results?.ug?.project_title || 'Not specified'}</Text>
+            </View>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>PG Project Title</Text>
+            <View style={styles.value}>
+              <Text>{academicDetails?.qualifications?.[0]?.examination_results?.pg?.project_title || 'Not specified'}</Text>
+            </View>
+          </View>
+        </View>
+        
+        <Text style={styles.pageNumber} render={({ pageNumber, totalPages }) => (
+          `Page ${pageNumber} of ${totalPages}`
+        )} fixed />
+      </Page>
+      
+      {/* Page 3: Experience, Publications and Additional Qualifications */}
+      <Page size="A4" style={styles.page}>
+        <View style={styles.header} fixed>
+          <Text style={styles.title}>PhD ADMISSION APPLICATION</Text>
+          <Text style={styles.subtitle}>Application Number: {applicationNumber}</Text>
+        </View>
+
+        {/* Experience Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Professional Experience</Text>
+          {(academicDetails?.experience || []).map((exp, index) => (
+            <View key={index} style={styles.row}>
+              <Text style={styles.label}>{exp.type}</Text>
+              <View style={styles.value}>
+                <Text>Organization: {exp.organisation}</Text>
+                <Text>Place: {exp.place}</Text>
+                <Text>Period: {new Date(exp.period_from).toLocaleDateString()} - {exp.period_to ? new Date(exp.period_to).toLocaleDateString() : 'Present'}</Text>
+                <Text>Designation: {exp.designation}</Text>
+                <Text>Monthly Compensation: {exp.monthly_compensation}</Text>
+                <Text>Nature of Work: {exp.nature_of_work}</Text>
+              </View>
+            </View>
+          ))}
+        </View>
+
+        {/* Publications Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Publications</Text>
+          {(academicDetails?.publications || []).map((pub, index) => (
+            <View key={index} style={styles.row}>
+              <Text style={styles.label}>{pub.type}</Text>
+              <View style={styles.value}>
+                <Text>Title: {pub.paper_title}</Text>
+                <Text>Affiliation: {pub.affiliation}</Text>
+                <Text>Year: {pub.acceptance_year}</Text>
+              </View>
+              </View>
+          ))}
+        </View>
+        
+        {/* Additional Qualifications Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Additional Qualifications</Text>
+          <View style={styles.row}>
+            <Text style={styles.label}>GATE Details</Text>
+            <View style={styles.value}>
+              <Text>Score: {academicDetails?.additional_qualifications?.find(q => q.exam_type === 'GATE')?.score || 'Not specified'}</Text>
+              <Text>Qualifying Year: {academicDetails?.additional_qualifications?.find(q => q.exam_type === 'GATE')?.qualifying_year || 'Not specified'}</Text>
+            </View>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>NET/CSIR/UGC/JRF/Lectureship/NBHM/Others</Text>
+            <View style={styles.value}>
+              <Text>Examination: {academicDetails?.additional_qualifications?.find(q => q.exam_type === 'NET/CSIR/UGC/JRF/Lectureship/NBHM/Other')?.exam_name || 'Not specified'}</Text>
+              <Text>Date of Exam: {academicDetails?.additional_qualifications?.find(q => q.exam_type === 'NET/CSIR/UGC/JRF/Lectureship/NBHM/Other')?.date_of_exam || 'Not specified'}</Text>
+              <Text>Qualifying Year: {academicDetails?.additional_qualifications?.find(q => q.exam_type === 'NET/CSIR/UGC/JRF/Lectureship/NBHM/Other')?.qualifying_year || 'Not specified'}</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Interested Area of Research Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Interested Area of Research</Text>
+          <View style={styles.row}>
+            <Text style={styles.label}>Department</Text>
+            <View style={styles.value}>
+              <Text>{academicDetails?.research_interest?.branch || 'Not specified'}</Text>
+            </View>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Specialization/Area of Research</Text>
+            <View style={styles.value}>
+              <Text>{academicDetails?.research_interest?.area || 'Not specified'}</Text>
+            </View>
+          </View>
+        </View>
+        
+        <Text style={styles.pageNumber} render={({ pageNumber, totalPages }) => (
+          `Page ${pageNumber} of ${totalPages}`
+        )} fixed />
+      </Page>
+      
+      {/* Page 4: Enclosures, Payment and Declaration */}
+      <Page size="A4" style={styles.page}>
+        <View style={styles.header} fixed>
+          <Text style={styles.title}>PhD ADMISSION APPLICATION</Text>
+          <Text style={styles.subtitle}>Application Number: {applicationNumber}</Text>
+        </View>
+
+        {/* Enclosure Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>List of Enclosures</Text>
+          {[
+            { id: 'transaction_details', label: 'Online Transaction Details' },
+            { id: 'matriculation', label: 'Matriculation Marksheet and Certificate' },
+            { id: 'intermediate', label: '+2/Intermediate/Diploma Marksheet and Certificate' },
+            { id: 'bachelors', label: "Bachelor's Degree Marksheet and Certificate" },
+            { id: 'masters', label: "Master's Degree Marksheet and Certificate" },
+            { id: 'gate_net', label: 'GATE score/NET Certificate' },
+            { id: 'doctors_certificate', label: "Doctor's Certificate (in case of PH)" },
+            { id: 'community_certificate', label: 'Community Certificate' },
+            { id: 'experience_letter', label: 'Experience Letter (if any)' },
+            { id: 'government_id', label: 'Government ID' },
+            { id: 'research_publications', label: 'Research Publication(s)' }
+          ].map((item) => (
+            <View key={item.id} style={styles.row}>
+              <Text style={styles.label}>{item.label}</Text>
+              <View style={styles.value}>
+                <Text style={{ fontSize: 12 }}>{enclosures?.enclosure?.enclosures?.[item.id] ? 'Ticked' : 'Not Ticked'}</Text>
+              </View>
+            </View>
+          ))}
+
+          {enclosures?.enclosure?.additional_info && (
+            <View style={[styles.row, { marginTop: 10 }]}>
+              <Text style={styles.label}>Additional Information</Text>
+              <View style={styles.value}>
+                <Text style={styles.fullWidth}>{enclosures.enclosure.additional_info}</Text>
+              </View>
+            </View>
+          )}
+        </View>
+
+        {/* Payment Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Payment Details</Text>
+          <View style={styles.row}>
+            <Text style={styles.label}>Transaction ID</Text>
+            <Text style={styles.value}>{payment?.data?.transaction_id || 'Not specified'}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Transaction Date</Text>
+            <Text style={styles.value}>{payment?.data?.transaction_date ? new Date(payment.data.transaction_date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Not specified'}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Issued Bank</Text>
+            <Text style={styles.value}>{payment?.data?.issued_bank || 'Not specified'}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Amount</Text>
+            <Text style={styles.value}>₹{payment?.data?.amount || 'Not specified'}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Status</Text>
+            <Text style={styles.value}>{payment?.data?.status || 'Not specified'}</Text>
+          </View>
+          {payment?.data?.screenshot?.url && (
+            <View style={styles.imageContainer}>
+              <Text style={styles.documentTitle}>Transaction Screenshot</Text>
+              <Image
+                src={payment.data.screenshot.url}
+                style={styles.documentImage}
+                cache={false}
+              />
+            </View>
+          )}
+        </View>
+
+        {/* Declaration Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>DECLARATION</Text>
+          <Text style={styles.fullWidth}>
+            I hereby declare that I have carefully read the instructions and particulars relevant to this admission and that the entries made in this application form are correct to the best of my knowledge and belief.
+          </Text>
+          <View style={styles.row}>
+            <Text style={styles.label}>Place:</Text>
+            <Text style={styles.value}>{enclosures?.enclosure?.declaration?.place || 'Not specified'}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Date:</Text>
+            <Text style={styles.value}>{enclosures?.enclosure?.declaration?.date ? new Date(enclosures.enclosure.declaration.date).toLocaleDateString() : 'Not specified'}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Signature</Text>
+            <View style={styles.value}>
+              {personalDetails?.signature?.url ? (
                 <Image
                   src={personalDetails.signature.url}
                   style={styles.signature}
                   cache={false}
                 />
-              </View>
-            )}
-          </View>
-        </View>
-      </View>
-
-      {/* Address Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Communication Address</Text>
-        <View style={styles.row}>
-          <Text style={styles.label}>Current Address</Text>
-          <View style={styles.value}>
-            <Text>{personalDetails?.current_address?.street || 'Not specified'}</Text>
-            {personalDetails?.current_address?.line2 && (
-              <Text>{personalDetails.current_address.line2}</Text>
-            )}
-            {personalDetails?.current_address?.line3 && (
-              <Text>{personalDetails.current_address.line3}</Text>
-            )}
-            <Text>
-              {personalDetails?.current_address?.city || 'Not specified'}, {personalDetails?.current_address?.state || 'Not specified'} - {personalDetails?.current_address?.pincode || 'Not specified'}
-            </Text>
-          </View>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Permanent Address</Text>
-          <View style={styles.value}>
-            <Text>{personalDetails?.permanent_address?.street || 'Not specified'}</Text>
-            {personalDetails?.permanent_address?.line2 && (
-              <Text>{personalDetails.permanent_address.line2}</Text>
-            )}
-            {personalDetails?.permanent_address?.line3 && (
-              <Text>{personalDetails.permanent_address.line3}</Text>
-            )}
-            <Text>
-              {personalDetails?.permanent_address?.city || 'Not specified'}, {personalDetails?.permanent_address?.state || 'Not specified'} - {personalDetails?.permanent_address?.pincode || 'Not specified'}
-            </Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Academic Qualifications Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Academic Qualifications</Text>
-        {(academicDetails?.qualifications || []).map((qual, index) => (
-          <View key={index} style={styles.row}>
-            <Text style={styles.label}>{qual.standard}</Text>
-            <View style={styles.value}>
-              <Text>{qual.degree_name}</Text>
-              <Text>{qual.university}</Text>
-              <Text>Year: {qual.year_of_completion}</Text>
-              <Text>Marks: {qual.marks_obtained} {qual.marks_type}</Text>
-              {qual.branch && <Text>Branch: {qual.branch}</Text>}
-              <Text>Duration: {qual.program_duration_months} months</Text>
-            </View>
-          </View>
-        ))}
-      </View>
-
-      {/* Experience Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Professional Experience</Text>
-        {(academicDetails?.experience || []).map((exp, index) => (
-          <View key={index} style={styles.row}>
-            <Text style={styles.label}>{exp.type}</Text>
-            <View style={styles.value}>
-              <Text>Organization: {exp.organisation}</Text>
-              <Text>Place: {exp.place}</Text>
-              <Text>Period: {new Date(exp.period_from).toLocaleDateString()} - {exp.period_to ? new Date(exp.period_to).toLocaleDateString() : 'Present'}</Text>
-              <Text>Designation: {exp.designation}</Text>
-              <Text>Monthly Compensation: {exp.monthly_compensation}</Text>
-              <Text>Nature of Work: {exp.nature_of_work}</Text>
-            </View>
-          </View>
-        ))}
-      </View>
-
-      {/* Publications Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Publications</Text>
-        {(academicDetails?.publications || []).map((pub, index) => (
-          <View key={index} style={styles.row}>
-            <Text style={styles.label}>{pub.type}</Text>
-            <View style={styles.value}>
-              <Text>Title: {pub.paper_title}</Text>
-              <Text>Affiliation: {pub.affiliation}</Text>
-              <Text>Year: {pub.acceptance_year}</Text>
-            </View>
-            </View>
-        ))}
-      </View>
-
-      {/* Mode of PhD Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Mode of PhD</Text>
-        <View style={styles.row}>
-          <Text style={styles.label}>Mode</Text>
-          <Text style={styles.value}>{personalDetails?.mode_of_phd || 'Not specified'}</Text>
-        </View>
-      </View>
-
-      {/* Examination Results Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Examination Results</Text>
-        <View style={styles.row}>
-          <Text style={styles.label}>Bachelor's Degree</Text>
-          <View style={styles.value}>
-            <Text>Branch: {academicDetails?.qualifications?.find(q => q.standard === 'UG')?.examination_results?.ug?.branch || 'Not specified'}</Text>
-            <Text>Aggregate/CGPA: {academicDetails?.qualifications?.find(q => q.standard === 'UG')?.examination_results?.ug?.aggregate?.cgpa || 'Not specified'}</Text>
-            <Text>Class: {academicDetails?.qualifications?.find(q => q.standard === 'UG')?.examination_results?.ug?.aggregate?.class || 'Not specified'}</Text>
-            <Text>% of Marks/GPA: {academicDetails?.qualifications?.find(q => q.standard === 'UG')?.examination_results?.ug?.aggregate?.percentage || 'Not specified'}</Text>
-          </View>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Semester-wise Marks</Text>
-          <View style={styles.value}>
-            <View style={styles.table}>
-              <View style={styles.tableRow}>
-                <Text style={styles.tableHeader}>Semester I</Text>
-                <Text style={styles.tableHeader}>Semester II</Text>
-                <Text style={styles.tableHeader}>Semester III</Text>
-                <Text style={styles.tableHeader}>Semester IV</Text>
-                <Text style={styles.tableHeader}>Semester V</Text>
-                <Text style={styles.tableHeader}>Semester VI</Text>
-                <Text style={styles.tableHeader}>Semester VII</Text>
-                <Text style={styles.tableHeader}>Semester VIII</Text>
-              </View>
-              <View style={styles.tableRow}>
-                <Text style={styles.tableCell}>{academicDetails?.qualifications?.find(q => q.standard === 'UG')?.examination_results?.ug?.semesters?.I?.marks || '-'}</Text>
-                <Text style={styles.tableCell}>{academicDetails?.qualifications?.find(q => q.standard === 'UG')?.examination_results?.ug?.semesters?.II?.marks || '-'}</Text>
-                <Text style={styles.tableCell}>{academicDetails?.qualifications?.find(q => q.standard === 'UG')?.examination_results?.ug?.semesters?.III?.marks || '-'}</Text>
-                <Text style={styles.tableCell}>{academicDetails?.qualifications?.find(q => q.standard === 'UG')?.examination_results?.ug?.semesters?.IV?.marks || '-'}</Text>
-                <Text style={styles.tableCell}>{academicDetails?.qualifications?.find(q => q.standard === 'UG')?.examination_results?.ug?.semesters?.V?.marks || '-'}</Text>
-                <Text style={styles.tableCell}>{academicDetails?.qualifications?.find(q => q.standard === 'UG')?.examination_results?.ug?.semesters?.VI?.marks || '-'}</Text>
-                <Text style={styles.tableCell}>{academicDetails?.qualifications?.find(q => q.standard === 'UG')?.examination_results?.ug?.semesters?.VII?.marks || '-'}</Text>
-                <Text style={styles.tableCell}>{academicDetails?.qualifications?.find(q => q.standard === 'UG')?.examination_results?.ug?.semesters?.VIII?.marks || '-'}</Text>
-              </View>
+              ) : (
+                <Text style={styles.value}>Not Attached</Text>
+              )}
             </View>
           </View>
         </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Master's Degree</Text>
-          <View style={styles.value}>
-            <Text>Branch: {academicDetails?.qualifications?.find(q => q.standard === 'PG')?.examination_results?.pg?.branch || 'Not specified'}</Text>
-            <Text>Aggregate/CGPA: {academicDetails?.qualifications?.find(q => q.standard === 'PG')?.examination_results?.pg?.aggregate?.cgpa || 'Not specified'}</Text>
-            <Text>Class: {academicDetails?.qualifications?.find(q => q.standard === 'PG')?.examination_results?.pg?.aggregate?.class || 'Not specified'}</Text>
-            <Text>% of Marks/GPA: {academicDetails?.qualifications?.find(q => q.standard === 'PG')?.examination_results?.pg?.aggregate?.percentage || 'Not specified'}</Text>
-          </View>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Semester-wise Marks</Text>
-          <View style={styles.value}>
-            <View style={styles.table}>
-              <View style={styles.tableRow}>
-                <Text style={styles.tableHeader}>Semester I</Text>
-                <Text style={styles.tableHeader}>Semester II</Text>
-                <Text style={styles.tableHeader}>Semester III</Text>
-                <Text style={styles.tableHeader}>Semester IV</Text>
-              </View>
-              <View style={styles.tableRow}>
-                <Text style={styles.tableCell}>{academicDetails?.qualifications?.find(q => q.standard === 'PG')?.examination_results?.pg?.semesters?.I?.marks || '-'}</Text>
-                <Text style={styles.tableCell}>{academicDetails?.qualifications?.find(q => q.standard === 'PG')?.examination_results?.pg?.semesters?.II?.marks || '-'}</Text>
-                <Text style={styles.tableCell}>{academicDetails?.qualifications?.find(q => q.standard === 'PG')?.examination_results?.pg?.semesters?.III?.marks || '-'}</Text>
-                <Text style={styles.tableCell}>{academicDetails?.qualifications?.find(q => q.standard === 'PG')?.examination_results?.pg?.semesters?.IV?.marks || '-'}</Text>
-              </View>
-            </View>
-          </View>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Other Degree/Diploma</Text>
-          <View style={styles.value}>
-            <Text>{academicDetails?.qualifications?.find(q => q.standard === 'Other')?.examination_results?.other?.degree_name || 'Not specified'}</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Additional Qualifications Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Additional Qualifications</Text>
-        <View style={styles.row}>
-          <Text style={styles.label}>GATE Details</Text>
-          <View style={styles.value}>
-            <Text>Score: {academicDetails?.additional_qualifications?.find(q => q.exam_type === 'GATE')?.score || 'Not specified'}</Text>
-            <Text>Qualifying Year: {academicDetails?.additional_qualifications?.find(q => q.exam_type === 'GATE')?.qualifying_year || 'Not specified'}</Text>
-          </View>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>NET/CSIR/UGC/JRF/Lectureship/NBHM/Others</Text>
-          <View style={styles.value}>
-            <Text>Examination: {academicDetails?.additional_qualifications?.find(q => q.exam_type === 'NET/CSIR/UGC/JRF/Lectureship/NBHM/Other')?.exam_name || 'Not specified'}</Text>
-            <Text>Date of Exam: {academicDetails?.additional_qualifications?.find(q => q.exam_type === 'NET/CSIR/UGC/JRF/Lectureship/NBHM/Other')?.date_of_exam || 'Not specified'}</Text>
-            <Text>Qualifying Year: {academicDetails?.additional_qualifications?.find(q => q.exam_type === 'NET/CSIR/UGC/JRF/Lectureship/NBHM/Other')?.qualifying_year || 'Not specified'}</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Project Titles Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Project Titles</Text>
-        <View style={styles.row}>
-          <Text style={styles.label}>UG Project Title</Text>
-          <View style={styles.value}>
-            <Text>{academicDetails?.qualifications?.find(q => q.standard === 'UG')?.project_title || 'Not specified'}</Text>
-          </View>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>PG Project Title</Text>
-          <View style={styles.value}>
-            <Text>{academicDetails?.qualifications?.find(q => q.standard === 'PG')?.project_title || 'Not specified'}</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Interested Area of Research Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Interested Area of Research</Text>
-        <View style={styles.row}>
-          <Text style={styles.label}>Department</Text>
-          <View style={styles.value}>
-            <Text>{academicDetails?.research_interest?.branch || 'Not specified'}</Text>
-          </View>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Specialization/Area of Research</Text>
-          <View style={styles.value}>
-            <Text>{academicDetails?.research_interest?.area || 'Not specified'}</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Enclosure Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>List of Enclosures</Text>
-        {[
-          { id: 'transaction_details', label: 'Online Transaction Details' },
-          { id: 'matriculation', label: 'Matriculation Marksheet and Certificate' },
-          { id: 'intermediate', label: '+2/Intermediate/Diploma Marksheet and Certificate' },
-          { id: 'bachelors', label: "Bachelor's Degree Marksheet and Certificate" },
-          { id: 'masters', label: "Master's Degree Marksheet and Certificate" },
-          { id: 'gate_net', label: 'GATE score/NET Certificate' },
-          { id: 'doctors_certificate', label: "Doctor's Certificate (in case of PH)" },
-          { id: 'community_certificate', label: 'Community Certificate' },
-          { id: 'experience_letter', label: 'Experience Letter (if any)' },
-          { id: 'government_id', label: 'Government ID' },
-          { id: 'research_publications', label: 'Research Publication(s)' }
-        ].map((item) => (
-          <View key={item.id} style={styles.row}>
-            <Text style={styles.label}>{item.label}</Text>
-            <View style={styles.value}>
-              <Text style={{ fontSize: 14 }}>{enclosures?.enclosure?.enclosures?.[item.id] ? 'Ticked' : 'Not Ticked'}</Text>
-            </View>
-          </View>
-        ))}
-
-        {enclosures?.enclosure?.additional_info && (
-          <View style={[styles.row, { marginTop: 10 }]}>
-            <Text style={styles.label}>Additional Information</Text>
-            <View style={styles.value}>
-              <Text style={styles.fullWidth}>{enclosures.enclosure.additional_info}</Text>
-            </View>
-          </View>
-        )}
-      </View>
-
-      {/* Payment Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Payment Details</Text>
-        <View style={styles.row}>
-          <Text style={styles.label}>Transaction ID</Text>
-          <Text style={styles.value}>{payment?.data?.transaction_id || 'Not specified'}</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Transaction Date</Text>
-          <Text style={styles.value}>{payment?.data?.transaction_date ? new Date(payment.data.transaction_date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Not specified'}</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Issued Bank</Text>
-          <Text style={styles.value}>{payment?.data?.issued_bank || 'Not specified'}</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Amount</Text>
-          <Text style={styles.value}>₹{payment?.data?.amount || 'Not specified'}</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Status</Text>
-          <Text style={styles.value}>{payment?.data?.status || 'Not specified'}</Text>
-        </View>
-        {payment?.data?.screenshot?.url && (
-          <View style={styles.imageContainer}>
-            <Text style={styles.documentTitle}>Transaction Screenshot</Text>
-            <Image
-              src={payment.data.screenshot.url}
-              style={styles.documentImage}
-              cache={false}
-            />
-          </View>
-        )}
-      </View>
-
-      {/* Declaration Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>DECLARATION</Text>
-        <Text style={styles.fullWidth}>
-          I hereby declare that I have carefully read the instructions and particulars relevant to this admission and that the entries made in this application form are correct to the best of my knowledge and belief.
-        </Text>
-        <View style={styles.row}>
-          <Text style={styles.label}>Place:</Text>
-          <Text style={styles.value}>{enclosures?.enclosure?.declaration?.place || 'Not specified'}</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Date:</Text>
-          <Text style={styles.value}>{enclosures?.enclosure?.declaration?.date ? new Date(enclosures.enclosure.declaration.date).toLocaleDateString() : 'Not specified'}</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Signature</Text>
-          <View style={styles.value}>
-            {personalDetails?.signature?.url ? (
-              <Image
-                src={personalDetails.signature.url}
-                style={styles.signature}
-                cache={false}
-              />
-            ) : (
-              <Text style={styles.value}>Not Attached</Text>
-            )}
-          </View>
-        </View>
-      </View>
-    </Page>
-  </>
-);
+        
+        <Text style={styles.pageNumber} render={({ pageNumber, totalPages }) => (
+          `Page ${pageNumber} of ${totalPages}`
+        )} fixed />
+      </Page>
+    </Document>
+  );
+};
 
 export default function PrintApplication() {
   const [personalDetails, setPersonalDetails] = useState(null);
@@ -747,16 +827,14 @@ export default function PrintApplication() {
       console.log('Generating application form PDF...');
       try {
         const pdfBlob = await pdf(
-          <Document>
-            <ApplicationPDF 
-              personalDetails={personalDetails} 
-              academicDetails={academicDetails} 
-              applicationNumber={applicationNumber}
-              enclosures={enclosures}
-              payment={payment}
-              declaration={declaration}
-            />
-          </Document>
+          <ApplicationPDF 
+            personalDetails={personalDetails} 
+            academicDetails={academicDetails} 
+            applicationNumber={applicationNumber}
+            enclosures={enclosures}
+            payment={payment}
+            declaration={declaration}
+          />
         ).toBlob();
         
         console.log('Application form PDF generated successfully');
@@ -810,6 +888,9 @@ export default function PrintApplication() {
           console.log('Returning original URL:', url);
           return url;
         };
+
+        // Create an array to track which documents were successfully processed
+        const processedDocuments = [];
 
         // Merge all documents
         const documentsToMerge = [
@@ -871,40 +952,93 @@ export default function PrintApplication() {
               const blob = await response.blob();
               console.log(`Successfully fetched blob for ${doc.type}, size: ${blob.size}`);
               
+              if (blob.size === 0) {
+                console.error(`Empty blob for ${doc.type}`);
+                throw new Error(`Empty document: ${doc.type}`);
+              }
+              
               const arrayBuffer = await blob.arrayBuffer();
               console.log(`Successfully converted blob to arrayBuffer for ${doc.type}`);
               
               if (doc.contentType === 'application/pdf') {
-                const docPdf = await PDFDocument.load(arrayBuffer);
-                const pages = await mergedPdf.copyPages(docPdf, docPdf.getPageIndices());
-                pages.forEach(page => mergedPdf.addPage(page));
-                console.log(`Added ${pages.length} pages from ${doc.type} document`);
+                try {
+                  const docPdf = await PDFDocument.load(arrayBuffer);
+                  if (!docPdf) {
+                    throw new Error(`Failed to load PDF document for ${doc.type}`);
+                  }
+                  const pageIndices = docPdf.getPageIndices();
+                  if (pageIndices.length === 0) {
+                    throw new Error(`PDF document for ${doc.type} has no pages`);
+                  }
+                  const pages = await mergedPdf.copyPages(docPdf, pageIndices);
+                  if (pages.length === 0) {
+                    throw new Error(`Failed to copy pages from ${doc.type}`);
+                  }
+                  pages.forEach(page => mergedPdf.addPage(page));
+                  console.log(`Added ${pages.length} pages from ${doc.type} document`);
+                  processedDocuments.push(doc.type);
+                } catch (pdfError) {
+                  console.error(`Error processing PDF for ${doc.type}:`, pdfError);
+                  // Add a placeholder page with error message
+                  const errorPage = mergedPdf.addPage();
+                  const { width, height } = errorPage.getSize();
+                  errorPage.drawText(`Error loading ${doc.type} document: ${pdfError.message}`, {
+                    x: 50,
+                    y: height / 2,
+                    size: 12,
+                    color: rgb(1, 0, 0),
+                  });
+                }
               }
             } catch (error) {
               console.error(`Error processing document for ${doc.type}:`, error);
               // Add a placeholder page with error message
               const errorPage = mergedPdf.addPage();
+              const { width, height } = errorPage.getSize();
               errorPage.drawText(`Error loading ${doc.type} document: ${error.message}`, {
-                    x: 50,
-                y: errorPage.getHeight() / 2,
-                    size: 12,
-                    color: rgb(1, 0, 0),
-                  });
+                x: 50,
+                y: height / 2,
+                size: 12,
+                color: rgb(1, 0, 0),
+              });
               toast.error(`Failed to add ${doc.type} document to PDF: ${error.message}`);
             }
           }
         }
 
+        console.log('Successfully processed documents:', processedDocuments);
+        
         // Save the merged PDF
-        const mergedPdfBytes = await mergedPdf.save();
-        const finalBlob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
-        const url = URL.createObjectURL(finalBlob);
-        setMergedPdfUrl(url);
-        setShowPDF(true);
-        toast.success('PDF generated successfully!');
+        try {
+          console.log('Saving merged PDF...');
+          const mergedPdfBytes = await mergedPdf.save();
+          console.log('Merged PDF saved successfully, size:', mergedPdfBytes.length);
+          
+          const finalBlob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
+          console.log('Created Blob from PDF bytes, size:', finalBlob.size);
+          
+          const url = URL.createObjectURL(finalBlob);
+          console.log('Created URL from Blob:', url);
+          
+          setMergedPdfUrl(url);
+          setShowPDF(true);
+          toast.success('PDF generated successfully!');
+        } catch (saveError) {
+          console.error('Error saving merged PDF:', saveError);
+          throw new Error(`Failed to save merged PDF: ${saveError.message}`);
+        }
       } catch (error) {
         console.error('Error in application form generation:', error);
-        throw new Error(`Failed to generate application form: ${error.message}`);
+        
+        // Fallback to showing just the application form without attachments
+        try {
+          console.log('Attempting fallback to application form only...');
+          setShowPDF(true);
+          toast.warning('PDF generated with application form only. Attachments could not be included.');
+        } catch (fallbackError) {
+          console.error('Fallback failed:', fallbackError);
+          toast.error(`Failed to generate PDF: ${error.message}`);
+        }
       }
     } catch (error) {
       console.error('Error in PDF generation process:', error);
@@ -981,14 +1115,16 @@ export default function PrintApplication() {
           />
         ) : (
           <PDFViewer className="w-full h-full">
-            <ApplicationPDF 
-              personalDetails={personalDetails} 
-              academicDetails={academicDetails} 
-              applicationNumber={applicationNumber}
-              enclosures={enclosures}
-              payment={payment}
-              declaration={declaration}
-            />
+            <Document>
+              <ApplicationPDF 
+                personalDetails={personalDetails} 
+                academicDetails={academicDetails} 
+                applicationNumber={applicationNumber}
+                enclosures={enclosures}
+                payment={payment}
+                declaration={declaration}
+              />
+            </Document>
           </PDFViewer>
         )}
       </div>
@@ -1158,45 +1294,6 @@ export default function PrintApplication() {
                   <p className="text-gray-600">Program Duration: {qual.program_duration_months} months</p>
                 </div>
               ))}
-            </div>
-
-            {/* Experience */}
-            <div className="mb-6">
-              <h3 className="text-lg font-medium mb-2">Experience</h3>
-              {(academicDetails?.experience || []).map((exp, index) => (
-                <div key={index} className="mb-4 p-3 bg-gray-50 rounded">
-                  <p className="font-medium">{exp.type}</p>
-                  <p className="text-gray-600">Organization: {exp.organisation}</p>
-                  <p className="text-gray-600">Place: {exp.place}</p>
-                  <p className="text-gray-600">Period: {new Date(exp.period_from).toLocaleDateString()} - {exp.period_to ? new Date(exp.period_to).toLocaleDateString() : 'Present'}</p>
-                  <p className="text-gray-600">Designation: {exp.designation}</p>
-                  <p className="text-gray-600">Monthly Compensation: {exp.monthly_compensation}</p>
-                  <p className="text-gray-600">Nature of Work: {exp.nature_of_work}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Publications */}
-            <div className="mb-6">
-              <h3 className="text-lg font-medium mb-2">Publications</h3>
-              {(academicDetails?.publications || []).map((pub, index) => (
-                <div key={index} className="mb-4 p-3 bg-gray-50 rounded">
-                  <p className="font-medium">{pub.type}</p>
-                  <p className="text-gray-600">Title: {pub.paper_title}</p>
-                  <p className="text-gray-600">Affiliation: {pub.affiliation}</p>
-                  <p className="text-gray-600">Year: {pub.acceptance_year}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Mode of PhD Section */}
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-2">Mode of PhD</h3>
-              <div className="border border-gray-200 rounded p-4">
-                <p className="text-gray-700">
-                  {personalDetails?.mode_of_phd || 'Not specified'}
-                </p>
-              </div>
             </div>
 
             {/* Examination Results Section */}
@@ -1383,11 +1480,11 @@ export default function PrintApplication() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-gray-600">UG Project Title</p>
-                    <p className="text-gray-700">{academicDetails?.qualifications?.find(q => q.standard === 'UG')?.project_title || 'Not specified'}</p>
+                    <p className="text-gray-700">{academicDetails?.qualifications?.[0]?.examination_results?.ug?.project_title || 'Not specified'}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">PG Project Title</p>
-                    <p className="text-gray-700">{academicDetails?.qualifications?.find(q => q.standard === 'PG')?.project_title || 'Not specified'}</p>
+                    <p className="text-gray-700">{academicDetails?.qualifications?.[0]?.examination_results?.pg?.project_title || 'Not specified'}</p>
                   </div>
                 </div>
               </div>

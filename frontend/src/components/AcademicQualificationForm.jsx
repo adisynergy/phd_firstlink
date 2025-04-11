@@ -962,7 +962,7 @@ export default function AcademicQualificationForm() {
   };
 
   const handleExaminationResultChange = (e, index, level, field, semester = null) => {
-    const { name, value } = e.target;
+    const { value } = e.target;
     setFormData(prev => ({
       ...prev,
       qualifications: prev.qualifications.map((qual, i) => {
@@ -978,7 +978,7 @@ export default function AcademicQualificationForm() {
                     ...qual.examination_results[level].semesters,
                     [semester]: {
                       ...qual.examination_results[level].semesters[semester],
-                      [name]: value
+                      [field]: value
                     }
                   }
                 }
@@ -993,7 +993,7 @@ export default function AcademicQualificationForm() {
                   ...qual.examination_results[level],
                   aggregate: {
                     ...qual.examination_results[level].aggregate,
-                    [name]: value
+                    [e.target.name]: value
                   }
                 }
               }
@@ -1005,7 +1005,7 @@ export default function AcademicQualificationForm() {
                 ...qual.examination_results,
                 [level]: {
                   ...qual.examination_results[level],
-                  [name]: value
+                  [field]: value
                 }
               }
             };
@@ -1116,22 +1116,22 @@ export default function AcademicQualificationForm() {
         <form onSubmit={handleSubmit} className="p-6 space-y-8">
           {/* Research Interest Area */}
           <div className="space-y-6">
-            <h2 className="text-lg font-medium text-gray-700">Research Interest Area</h2>
+            <h2 className="text-lg font-medium text-gray-700">Interested Area of Research</h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="research-branch" className="text-sm font-medium text-gray-700">Branch</Label>
+                <Label htmlFor="research-branch" className="text-sm font-medium text-gray-700">Department (for S&H write "S&H subsection" where subsection are: Mathematics, Physics, Chemistry, English, Social Science)</Label>
                 <Input
                   id="research-branch"
                   name="branch"
                   value={formData.research_interest?.branch || ""}
                   onChange={handleResearchInterestChange}
-                  placeholder="Enter your branch (e.g., CSE, ECE, EIE, EEE, ME)"
+                  placeholder="Enter your branch (e.g.,CE, CSE, ECE, EIE, EEE, ME,S&H)"
                   required
                 />
               </div>
 
               <div>
-                <Label htmlFor="research-area" className="text-sm font-medium text-gray-700">Research Area</Label>
+                <Label htmlFor="research-area" className="text-sm font-medium text-gray-700">Specialization/Area opted for Research (Refer Ph.D. Adv. Notification)</Label>
                 <Input
                   id="research-area"
                   name="area"
@@ -1251,7 +1251,7 @@ export default function AcademicQualificationForm() {
                   </div>
 
                   <div>
-                      <Label htmlFor={`qualification-${index}-marks_obtained`} className="text-sm font-medium text-gray-700">Marks Obtained</Label>
+                      <Label htmlFor={`qualification-${index}-marks_obtained`} className="text-sm font-medium text-gray-700">Percentage/ CGPA obtained</Label>
                     <Input
                       id={`qualification-${index}-marks_obtained`}
                       name="marks_obtained"
@@ -1840,6 +1840,33 @@ export default function AcademicQualificationForm() {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Project Titles */}
+          <div className="space-y-6">
+            <h2 className="text-lg font-medium text-gray-700">Project Details</h2>
+            <div className="grid grid-cols-1 gap-4">
+              <div>
+                <Label htmlFor="ug-project-title" className="text-sm font-medium text-gray-700">Title of U.G. Project</Label>
+                <Input
+                  id="ug-project-title"
+                  name="project_title"
+                  value={formData.qualifications[0]?.examination_results?.ug?.project_title || ""}
+                  onChange={(e) => handleExaminationResultChange(e, 0, 'ug', 'project_title')}
+                  placeholder="Enter your UG project title"
+                />
+              </div>
+              <div>
+                <Label htmlFor="pg-project-title" className="text-sm font-medium text-gray-700">Title of P.G. Project</Label>
+                <Input
+                  id="pg-project-title"
+                  name="project_title"
+                  value={formData.qualifications[0]?.examination_results?.pg?.project_title || ""}
+                  onChange={(e) => handleExaminationResultChange(e, 0, 'pg', 'project_title')}
+                  placeholder="Enter your PG project title"
+                />
+              </div>
+            </div>
           </div>
 
           <div className="mt-6">
