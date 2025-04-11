@@ -476,13 +476,13 @@ const ApplicationPDF = ({ personalDetails, academicDetails, applicationNumber, e
         <View style={styles.row}>
           <Text style={styles.label}>UG Project Title</Text>
           <View style={styles.value}>
-            <Text>{academicDetails?.qualifications?.find(q => q.standard === 'UG')?.project_title || 'Not specified'}</Text>
+            <Text>{academicDetails?.qualifications?.[0]?.examination_results?.ug?.project_title || 'Not specified'}</Text>
           </View>
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>PG Project Title</Text>
           <View style={styles.value}>
-            <Text>{academicDetails?.qualifications?.find(q => q.standard === 'PG')?.project_title || 'Not specified'}</Text>
+            <Text>{academicDetails?.qualifications?.[0]?.examination_results?.pg?.project_title || 'Not specified'}</Text>
           </View>
         </View>
       </View>
@@ -1383,11 +1383,11 @@ export default function PrintApplication() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-gray-600">UG Project Title</p>
-                    <p className="text-gray-700">{academicDetails?.qualifications?.find(q => q.standard === 'UG')?.project_title || 'Not specified'}</p>
+                    <p className="text-gray-700">{academicDetails?.qualifications?.[0]?.examination_results?.ug?.project_title || 'Not specified'}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">PG Project Title</p>
-                    <p className="text-gray-700">{academicDetails?.qualifications?.find(q => q.standard === 'PG')?.project_title || 'Not specified'}</p>
+                    <p className="text-gray-700">{academicDetails?.qualifications?.[0]?.examination_results?.pg?.project_title || 'Not specified'}</p>
                   </div>
                 </div>
               </div>

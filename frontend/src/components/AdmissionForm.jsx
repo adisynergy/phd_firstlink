@@ -760,23 +760,6 @@ export default function AdmissionForm() {
           </div>
         </div>
 
-        <div>
-          <Label htmlFor="current_address.pincode" required>Pincode</Label>
-          <Input
-            id="current_address.pincode"
-            name="current_address.pincode"
-            value={formData.current_address.pincode}
-            onChange={handleChange}
-            required
-            className={errors['current_address.pincode'] ? "border-red-500" : ""}
-            placeholder="6-digit pincode"
-          />
-          {errors['current_address.pincode'] && (
-            <p className="text-sm text-red-500 mt-1">{errors['current_address.pincode']}</p>
-          )}
-          <p className="text-xs text-gray-500">Enter a valid 6-digit pincode</p>
-        </div>
-
         {/* Communication Address */}
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Communication Address</h2>

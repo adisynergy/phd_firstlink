@@ -101,6 +101,7 @@ const AcademicDetailsSchema = new mongoose.Schema({
       examination_results: {
         ug: {
           branch: { type: String },
+          project_title: { type: String, trim: true },
           semesters: {
             I: { marks: String, class: String },
             II: { marks: String, class: String },
@@ -119,6 +120,7 @@ const AcademicDetailsSchema = new mongoose.Schema({
         },
         pg: {
           branch: { type: String },
+          project_title: { type: String, trim: true },
           semesters: {
             I: { marks: String, class: String },
             II: { marks: String, class: String },
